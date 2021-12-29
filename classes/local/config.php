@@ -14,36 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_bigbluebuttonbn\local;
+
+use mod_bigbluebuttonbn\instance;
+use mod_bigbluebuttonbn\recording;
+
 /**
- * The mod_bigbluebuttonbn locallib/config.
+ * Handles the global configuration based on config.php.
  *
  * @package   mod_bigbluebuttonbn
  * @copyright 2010 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
-
-namespace mod_bigbluebuttonbn\local;
-
-use mod_bigbluebuttonbn\local\bbb_constants;
-
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-
-/**
- * Handles the global configuration based on config.php.
- *
- * @copyright 2010 onwards, Blindside Networks Inc
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class config {
+
+    /** @var string Default bigbluebutton server url */
+    public const DEFAULT_SERVER_URL = 'http://test-install.blindsidenetworks.com/bigbluebutton/';
+
+    /** @var string Default bigbluebutton server shared secret */
+    public const DEFAULT_SHARED_SECRET = '8cd8ef52e8e101574e400365b55e11a6';
 
     /**
      * Returns moodle version.
      *
      * @return string
      */
-    public static function get_moodle_version_major() {
+    protected static function get_moodle_version_major() {
         global $CFG;
         $versionarray = explode('.', $CFG->version);
         return $versionarray[0];
@@ -54,10 +51,10 @@ class config {
      *
      * @return array
      */
-    public static function defaultvalues() {
-        return array(
-            'server_url' => (string) bbb_constants::BIGBLUEBUTTONBN_DEFAULT_SERVER_URL,
-            'shared_secret' => (string) bbb_constants::BIGBLUEBUTTONBN_DEFAULT_SHARED_SECRET,
+    protected static function defaultvalues() {
+        return [
+            'server_url' => self::DEFAULT_SERVER_URL,
+            'shared_secret' => self::DEFAULT_SHARED_SECRET,
             'voicebridge_editable' => false,
             'importrecordings_enabled' => false,
             'importrecordings_from_deleted_enabled' => false,
@@ -86,11 +83,13 @@ class config {
             'recordings_validate_url' => true,
             'recording_default' => true,
             'recording_editable' => true,
+            'recording_refresh_period' => recording::RECORDING_REFRESH_DEFAULT_PERIOD,
             'recording_icons_enabled' => true,
             'recording_all_from_start_default' => false,
             'recording_all_from_start_editable' => false,
             'recording_hide_button_default' => false,
             'recording_hide_button_editable' => false,
+            'recording_protect_editable' => true,
             'general_warning_message' => '',
             'general_warning_roles' => 'editingteacher,teacher',
             'general_warning_box_type' => 'info',
@@ -118,7 +117,7 @@ class config {
             'lockonjoinconfigurable_default' => false,
             'lockonjoinconfigurable_editable' => true,
             'welcome_default' => '',
-        );
+        ];
     }
 
     /**
@@ -127,7 +126,7 @@ class config {
      * @param string $setting
      * @return string
      */
-    public static function defaultvalue($setting) {
+    protected static function defaultvalue($setting) {
         $defaultvalues = self::defaultvalues();
         if (!array_key_exists($setting, $defaultvalues)) {
             return null;
@@ -155,7 +154,7 @@ class config {
     /**
      * Validates if recording settings are enabled.
      *
-     * @return boolean
+     * @return bool
      */
     public static function recordings_enabled() {
         return (boolean)self::get('recordings_enabled');
@@ -164,7 +163,7 @@ class config {
     /**
      * Validates if imported recording settings are enabled.
      *
-     * @return boolean
+     * @return bool
      */
     public static function importrecordings_enabled() {
         return (boolean)self::get('importrecordings_enabled');
@@ -176,7 +175,7 @@ class config {
      * @return array
      */
     public static function get_options() {
-        return array(
+        return [
                'version_major' => self::get_moodle_version_major(),
                'voicebridge_editable' => self::get('voicebridge_editable'),
                'importrecordings_enabled' => self::get('importrecordings_enabled'),
@@ -200,11 +199,13 @@ class config {
                'recordings_validate_url' => self::get('recordings_validate_url'),
                'recording_default' => self::get('recording_default'),
                'recording_editable' => self::get('recording_editable'),
+               'recording_refresh_period' => self::get('recording_refresh_period'),
                'recording_icons_enabled' => self::get('recording_icons_enabled'),
                'recording_all_from_start_default' => self::get('recording_all_from_start_default'),
                'recording_all_from_start_editable' => self::get('recording_all_from_start_editable'),
                'recording_hide_button_default' => self::get('recording_hide_button_default'),
                'recording_hide_button_editable' => self::get('recording_hide_button_editable'),
+               'recording_protect_editable' => self::get('recording_protect_editable'),
                'general_warning_message' => self::get('general_warning_message'),
                'general_warning_box_type' => self::get('general_warning_box_type'),
                'general_warning_button_text' => self::get('general_warning_button_text'),
@@ -231,7 +232,7 @@ class config {
                'lockonjoinconfigurable_editable' => self::get('lockonjoinconfigurable_editable'),
                'lockonjoinconfigurable_default' => self::get('lockonjoinconfigurable_default'),
                'welcome_default' => self::get('welcome_default'),
-          );
+        ];
     }
 
     /**
@@ -242,9 +243,9 @@ class config {
      *
      * @return array
      */
-    public static function bigbluebuttonbn_get_enabled_features($typeprofiles, $type = null) {
-        $enabledfeatures = array();
-        $features = $typeprofiles[bbb_constants::BIGBLUEBUTTONBN_TYPE_ALL]['features'];
+    public static function get_enabled_features($typeprofiles, $type = null) {
+        $enabledfeatures = [];
+        $features = $typeprofiles[instance::TYPE_ALL]['features'];
         if (!is_null($type) && key_exists($type, $typeprofiles)) {
             $features = $typeprofiles[$type]['features'];
         }
