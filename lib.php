@@ -203,11 +203,17 @@ function bigbluebuttonbn_getBestServer($bigbluebuttonbn)
             break;
     }
 
+    $server = null;
     foreach ($orderedServerRecords as $server) {
         $version = bigbluebuttonbn_get_server_version($server);
         if(is_null($version)) continue;
-        return $server;
+        else break;
     }
+    if ($orderedServerRecords instanceof moodle_recordset)
+        $orderedServerRecords->close();
+
+    if ($server)
+        return $server;
 
     throw new Exception("Neither of configured bigbluebuttonbn servers are available!");
 }

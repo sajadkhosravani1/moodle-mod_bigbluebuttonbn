@@ -488,6 +488,8 @@ $string['selected_server'] = "Selected server:";
 $string['config_servers'] = "Servers";
 $string['config_servers_description'] = "Fill list of the servers in JSON format. 
 Each server must contain these attributes:
+<li><b>servername:</b> The uniq name assigned to each server.
+ System will recognize each server by their <b><i>servername</i></b> after performing modification in other specifications. </li>
 <li><b>url:</b> Address of the  bigbluebutton server in URL format.</li>
 <li><b>secret:</b> Shred secret of the bigbluebutton server</li>
 <li><b>cap_sessions:</b> relative number of sessions that the server can host</li>

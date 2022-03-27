@@ -149,19 +149,10 @@ class admin_setting_servers extends admin_setting_configtextarea
      */
     public function update_servers(){
         global $DB;
-        // Delete unmentioned servers
-        $servernames = array();
-        foreach ($this->servers as $server) {
-            $servernames[] = $server->servername;
-        }
-        foreach ($DB->get_records('bigbluebuttonbn_servers') as $server) {
-            if (!in_array($server->servername, $servernames)) {
-                $DB->delete_records('bigbluebuttonbn_servers', ['servername' => $server->servername]);
-            }
-        }
-
         // Insert or update servers
+        $servernames = array();
         foreach ($this->servers as $server){
+            $servernames[] = $server->servername;
             if ($server->default)
                 $defaultServerName = $server->servername;
             if ($server->id = $DB->get_field('bigbluebuttonbn_servers', 'id', ['servername' => $server->servername])){
@@ -174,9 +165,19 @@ class admin_setting_servers extends admin_setting_configtextarea
         // Set default server
         set_config('bigbluebuttonbn_default_server_name', $defaultServerName);
 
-        // Substitute filing servername with default server if exist
+        // Delete excluded servers
+        foreach ($DB->get_records('bigbluebuttonbn_servers') as $server) {
+            if (!in_array($server->servername, $servernames)) {
+                $DB->delete_records('bigbluebuttonbn_servers', ['servername' => $server->servername]);
+                $DB->execute("
+                    UPDATE {bigbluebuttonbn} SET servername = \"$defaultServerName\" WHERE servername = \"$server->servername\"
+                ");
+            }
+        }
+
+        // Substitute filling servername with default server if exists
         $DB->execute("
-            UPDATE {`bigbluebuttonbn`} SET servername=\"$defaultServerName\" WHERE servername=\"".FILLING_SERVER_NAME."\""
+            UPDATE {bigbluebuttonbn} SET servername=\"$defaultServerName\" WHERE servername=\"".FILLING_SERVER_NAME."\""
         );
     }
 

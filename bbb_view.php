@@ -48,7 +48,7 @@ if (!$bbbviewinstance) {
 $cm = $bbbviewinstance['cm'];
 $course = $bbbviewinstance['course'];
 $bigbluebuttonbn = $bbbviewinstance['bigbluebuttonbn'];
-$server = $DB->get_record('bigbluebuttonbn_servers', ['id' => $bigbluebuttonbn->id]);
+$server = $DB->get_record('bigbluebuttonbn_servers', ['servername' => $bigbluebuttonbn->servername]);
 $context = context_module::instance($cm->id);
 
 require_login($course, true, $cm);
